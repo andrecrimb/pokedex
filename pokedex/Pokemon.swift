@@ -15,6 +15,9 @@ class Pokemon{
     private var _height: String!
     private var _attack: String!
     private var _nextEvolutionText: String!
+    private var _nextEvolutionName: String!
+    private var _nextEvolutionId: String!
+    private var _nextEvolutionLevel: String!
     private var _pokemonURL: String!
     
     //sempre fazer as verificacoes nos gets
@@ -71,10 +74,31 @@ class Pokemon{
     var name: String{
         return _name
     }
+    
     var pokedexId: Int{
         return _pokedexId
     }
     
+    var nextEvolutionName:String{
+        if _nextEvolutionName == nil{
+            _nextEvolutionName = ""
+        }
+        return _nextEvolutionName
+    }
+    
+    var nextEvolutionId: String{
+        if _nextEvolutionId == nil{
+            _nextEvolutionId = ""
+        }
+        return _nextEvolutionId
+    }
+    
+    var nextEvolutionLevel: String{
+        if _nextEvolutionLevel == nil{
+            _nextEvolutionLevel = ""
+        }
+        return _nextEvolutionLevel
+    }
     
     init (name: String, pokedexId: Int){
         self._name = name
@@ -140,6 +164,37 @@ class Pokemon{
                     }
                 } else {
                     self._description = ""
+                }
+                
+                if let evolutions = dict["evolutions"] as? [Dictionary<String,AnyObject>], evolutions.count > 0{
+                    if let nextEvo = evolutions[0]["to"] as? String{
+                        
+                        if nextEvo.range(of: "mega") == nil{
+                            
+                            self._nextEvolutionName = nextEvo
+                            
+                            if let uri = evolutions[0]["resource_uri"] as? String {
+                                
+                                let newStr = uri.replacingOccurrences(of: "/api/v1/pokemon/", with: "")
+                                let nextEvoId = newStr.replacingOccurrences(of: "/", with: "")
+                                
+                                self._nextEvolutionId = nextEvoId
+                                
+                                if let lvlExist = evolutions[0]["leve"] {
+                                    
+                                    if let lvl = lvlExist as? Int{
+                                        self._nextEvolutionLevel = "\(lvl)"
+                                    }
+                                    
+                                } else {
+                                    self._nextEvolutionLevel = ""
+                                }
+                                
+                            }
+                            
+                        }
+                    }
+                    print(self.nextEvolutionLevel)
                 }
                 
             }
